@@ -1,32 +1,19 @@
 module ApiDoc
   class Document
 
-    def initialize(env, options = {})
-      # puts "options: #{options.inspect}"
-      @env = env
-      # puts "@env: #{@env.inspect}"
-      @request = @env.request
-      # puts "@request.headers: #{@request.headers.inspect}"
-      # @request.env.each do |key, value|
-      #   puts key
-      # end
-      # puts "@request.env['action_dispatch.request.parameters']: #{@request.env['action_dispatch.request.parameters'].inspect}"
-      # puts "@request.env['action_dispatch.request.request_parameters']: #{@request.env['action_dispatch.request.request_parameters'].inspect}"
-      # puts "@request.env['action_dispatch.request.content_type']: #{@request.env['action_dispatch.request.content_type'].inspect}"
-      # puts "@request.env['action_dispatch.request.path_parameters']: #{@request.env['action_dispatch.request.path_parameters'].inspect}"
-      
-      @response = @env.response
+    def initialize(example, options = {})
+      @response = example.metadata[:response]
+      @request = @response.request
+
       @params = @request.env['action_dispatch.request.parameters']
       @path_parameters = @request.env['action_dispatch.request.path_parameters']
-      # puts File.join(@params["controller"], @params["action"])
+
       options.reverse_merge!(path: File.join(@params["controller"], @params["action"]))
       options.reverse_merge!(slug: options[:path].parameterize)
       @options = options
-      # puts "@options: #{@options.inspect}"
     end
 
     def request_json
-      # JSON.pretty_generate(JSON.parse(@response.body))
       body = @request.env['rack.input']
       if body.present?
         body.rewind

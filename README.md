@@ -16,6 +16,25 @@ Or install it yourself as:
 
     $ gem install api_doc
 
+### NOTE: Add this Monkeypatch for RSpec 3.+
+
+The following "decoration" is needed to hang the Rack response object off the
+example metadata before it's passed to the `after` hook callback. Rspec
+apparently used to do this, but now it doesn't, and apidoc desperately needs
+this to inspect all the HTTP interactions from Rack.
+
+     class RSpec::Core::Example
+       alias_method :run_after_example_without_response_payload, :run_after_example
+
+       def run_after_example
+         self.metadata[:response] = @example_group_instance.response
+         run_after_example_without_response_payload
+       end
+     end
+
+TODO: put that in a generator, and make the generator work (currently broken for Rails 4)
+
+
 ## Usage
 
 Prepare your Rails project by running the generator inside your project:
